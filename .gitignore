@@ -1,0 +1,37 @@
+# Environment variables
+.env
+backend/.env
+*.env
+
+# Node dependencies
+node_modules/
+frontend/node_modules/
+
+# Frontend builds
+frontend/dist/
+frontend/build/
+
+# Python cache & virtualenv
+__pycache__/
+*.pyc
+backend/__pycache__/
+backend/venv/
+backend/.pytest_cache/
+.venv/
+venv/
+
+# Python media uploads
+backend/media/disease/*
+!backend/media/disease/.gitkeep
+
+# Flutter / Mobile build files
+mobile/.dart_tool/
+mobile/build/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/android/.gradle/
+mobile/ios/Pods/
+
+# OS files
+.DS_Store
+Thumbs.db
