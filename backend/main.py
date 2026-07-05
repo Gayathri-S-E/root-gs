@@ -60,10 +60,13 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.error(f"Failed to initialize database tables: {e}")
 
-    # Create media directory
-    os.makedirs("media/disease", exist_ok=True)
-    os.makedirs("media/farms", exist_ok=True)
-    os.makedirs("media/profiles", exist_ok=True)
+    # Create media directory (skipped on read-only filesystems like Vercel)
+    try:
+        os.makedirs("media/disease", exist_ok=True)
+        os.makedirs("media/farms", exist_ok=True)
+        os.makedirs("media/profiles", exist_ok=True)
+    except OSError:
+        logger.warning("Media directories could not be created (read-only filesystem). Use S3 for file storage.")
 
     yield
 
@@ -111,7 +114,10 @@ app.add_middleware(
 )
 
 # ─── Static Files ────────────────────────────────────────────────────
-app.mount("/media", StaticFiles(directory="media"), name="media")
+try:
+    app.mount("/media", StaticFiles(directory="media"), name="media")
+except Exception:
+    logger.warning("Media directory not found. Static file serving disabled. Use S3 for file storage.")
 
 # ─── Routers ─────────────────────────────────────────────────────────
 API_V1 = "/api/v1"
