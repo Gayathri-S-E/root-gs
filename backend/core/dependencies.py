@@ -27,12 +27,19 @@ bearer_scheme = HTTPBearer(auto_error=False)
 _redis_client: Optional[aioredis.Redis] = None
 
 
-async def get_redis() -> aioredis.Redis:
+async def get_redis() -> Optional[aioredis.Redis]:
+    """Returns Redis client, or None if Redis is unavailable (graceful degradation)."""
     global _redis_client
     if _redis_client is None:
-        _redis_client = aioredis.from_url(
-            settings.REDIS_URL, encoding="utf-8", decode_responses=True
-        )
+        try:
+            client = aioredis.from_url(
+                settings.REDIS_URL, encoding="utf-8", decode_responses=True,
+                socket_connect_timeout=2,
+            )
+            await client.ping()
+            _redis_client = client
+        except Exception:
+            return None
     return _redis_client
 
 

@@ -5,6 +5,7 @@ Weather Router — Current weather, 7-day forecast, crop advisories
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from typing import Optional
 import redis.asyncio as aioredis
 
 from core.database import get_db
@@ -21,7 +22,7 @@ async def get_current_weather(
     lat: float = Query(..., description="Latitude"),
     lon: float = Query(..., description="Longitude"),
     current_user: User = Depends(get_current_user),
-    redis: aioredis.Redis = Depends(get_redis),
+    redis: Optional[aioredis.Redis] = Depends(get_redis),
 ):
     """Get current weather + 7-day forecast with crop advisories."""
     data = await weather_service.get_weather(lat, lon, redis)
@@ -33,7 +34,7 @@ async def get_farm_weather(
     farm_id: int,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-    redis: aioredis.Redis = Depends(get_redis),
+    redis: Optional[aioredis.Redis] = Depends(get_redis),
 ):
     """Get weather for a specific farm location."""
     from models.farm import Farm
